@@ -1,0 +1,271 @@
+[
+    {
+        "id": "b7eb8a0ff1140f28",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "72a249432038b287",
+        "type": "ui_template",
+        "z": "b7eb8a0ff1140f28",
+        "group": "923844b8b7f3d460",
+        "name": "Dashboard de Irrigação",
+        "order": 0,
+        "width": "26",
+        "height": "30",
+        "format": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Dashboard de Irrigação</title>\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css\">\n    <style>\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background-color: #f4f4f4;\n            margin: 0;\n            padding: 20px;\n            box-sizing: border-box;\n        }\n\n        .container {\n            background-color: #fff;\n            padding: 20px;\n            border-radius: 10px;\n            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);\n            width: 100%;\n            max-width: 1200px;\n            margin: 0 auto;\n        }\n\n        header {\n            text-align: center;\n            margin-bottom: 20px;\n        }\n\n        main {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n            gap: 20px;\n        }\n\n        .card {\n            background-color: #fff;\n            border-radius: 8px;\n            padding: 20px;\n            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);\n            transition: transform 0.2s;\n        }\n\n        .card:hover {\n            transform: translateY(-5px);\n        }\n\n        h2 {\n            color: #333;\n            margin-bottom: 15px;\n        }\n\n        .input-group {\n            margin-bottom: 15px;\n        }\n\n        .input-group label {\n            display: block;\n            margin-bottom: 5px;\n            font-weight: bold;\n        }\n\n        .input-group input[type=\"number\"],\n        .input-group input[type=\"range\"] {\n            width: 100%;\n            padding: 8px;\n            border: 1px solid #ccc;\n            border-radius: 4px;\n        }\n\n        .input-group output {\n            display: block;\n            margin-top: 5px;\n            text-align: center;\n        }\n\n        .real-time-info {\n            display: flex;\n            flex-wrap: wrap;\n            gap: 10px;\n        }\n\n        .info-item {\n            flex: 1 0 48%;\n            background-color: #f9f9f9;\n            padding: 10px;\n            border-radius: 4px;\n            margin-bottom: 10px;\n        }\n\n        .label {\n            display: block;\n            font-weight: bold;\n            margin-bottom: 5px;\n        }\n\n        .button-group {\n            display: flex;\n            justify-content: space-around;\n            margin-top: 20px;\n        }\n\n        .button-group button {\n            background-color: #007BFF;\n            color: white;\n            border: none;\n            padding: 10px 20px;\n            border-radius: 5px;\n            cursor: pointer;\n            transition: background-color 0.3s;\n        }\n\n        .button-group button:hover {\n            background-color: #0056b3;\n        }\n\n        .chart-container {\n            width: 100%;\n            height: 300px;\n            margin-top: 20px;\n        }\n\n        .fa-sync-alt {\n            margin-left: 5px;\n        }\n\n        .fa-water {\n            margin-left: 5px;\n        }\n\n        .fa-chart-line {\n            margin-left: 5px;\n        }\n    </style>\n</head>\n\n<body>\n    <div class=\"container\">\n        <header>\n            <h1>Dashboard de Irrigação</h1>\n        </header>\n\n        <main>\n            <section id=\"connectionStatus\" class=\"card\">\n                <h2>Status de Conexão</h2>\n                <div id=\"connectionMessages\"></div>\n            </section>\n\n            <section id=\"controlInputs\" class=\"card\">\n                <h2>Controle</h2>\n                <div class=\"input-group\">\n                    <label for=\"cropCycle\">Ciclo da cultura (dias):</label>\n                    <input type=\"number\" id=\"cropCycle\" min=\"1\" value=\"2\">\n                </div>\n                <div class=\"input-group\">\n                    <label for=\"soilTexture\">Argila no solo (%):</label>\n                    <input type=\"range\" id=\"soilTexture\" min=\"0\" max=\"100\" value=\"0\" oninput=\"updateSoilTextureOutput(this.value)\">\n                    <output for=\"soilTexture\" id=\"soilTextureOutput\">0</output>\n                </div>\n                <div class=\"button-group\">\n                    <button id=\"updateSettings\">Atualizar <i class=\"fas fa-sync-alt\"></i></button>\n                    <button id=\"waterNow\">Irrigar Agora <i class=\"fas fa-water\"></i></button>\n                </div>\n            </section>\n\n            <section id=\"currentStatus\" class=\"card\">\n                <h2>Monitoramento</h2>\n                <div class=\"real-time-info\">\n                    <div class=\"info-item\">\n                        <span class=\"label\">Dia:</span> <span id=\"day\">-</span> de <span id=\"totalDays\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Data:</span> <span id=\"currentDate\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Hora atual:</span> <span id=\"currentTime\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Tempo de acionamento recomendado:</span>\n                        <span id=\"recommendedActivationTime\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Intervalo entre as irrigações recomendado:</span>\n                        <span id=\"recommendedInterval\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Status da válvula:</span> <span id=\"valveStatus\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Acionamento em progresso:</span> <span id=\"activationInProgress\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Próximo acionamento:</span> <span id=\"nextActivation\">-</span>\n                    </div>\n                    <div class=\"info-item\">\n                        <span class=\"label\">Status Volume de água:</span> <span id=\"waterVolume\">-</span>\n                    </div>\n                </div>\n                <div class=\"chart-container\">\n                    <canvas id=\"waterUsageChart\"></canvas>\n                </div>\n            </section>\n        </main>\n    </div>\n\n    <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n    <script>\n        function updateSoilTextureOutput(value) {\n            document.getElementById('soilTextureOutput').value = value;\n        }\n\n        document.addEventListener('DOMContentLoaded', () => {\n            // Atualizar informações em tempo real\n            setInterval(() => {\n                document.getElementById('currentTime').innerText = new Date().toLocaleTimeString('pt-BR');\n            }, 1000);\n        });\n\n        // Função para atualizar o dashboard com dados MQTT\n        function updateDashboard(data) {\n            const parsedData = data;\n            switch (parsedData.topic) {\n                case 'cycle_info':\n                    document.getElementById('day').innerText = parsedData.day;\n                    document.getElementById('totalDays').innerText = parsedData.totalDays;\n                    document.getElementById('currentDate').innerText = parsedData.date;\n                    break;\n                case 'activation_time':\n                    document.getElementById('recommendedActivationTime').innerText = `${parsedData.activationTime} minutos`;\n                    break;\n                case 'interval_time':\n                    document.getElementById('recommendedInterval').innerText = `${parsedData.intervalTime} horas`;\n                    break;\n                case 'valve_status':\n                    document.getElementById('valveStatus').innerText = parsedData.valveStatus;\n                    break;\n                case 'next_activation':\n                    document.getElementById('nextActivation').innerText = parsedData.nextActivation;\n                    break;\n                case 'water_volume':\n                    document.getElementById('waterVolume').innerText = `${parsedData.waterVolume} litros`;\n                    break;\n                case 'status_message':\n                    const connectionMessagesContainer = document.getElementById('connectionMessages');\n                    const statusElement = document.createElement('p');\n                    statusElement.innerHTML = parsedData.statusMessage;\n                    connectionMessagesContainer.appendChild(statusElement);\n                    break;\n                case 'activation_in_progress':\n                    document.getElementById('activationInProgress').innerText = parsedData.time;\n                    break;\n            }\n        }\n\n        // Função para processar as mensagens MQTT recebidas\n        (function(scope) {\n            scope.$watch('msg.payload', function(data) {\n                if (data) {\n                    updateDashboard(data);\n                }\n            });\n        })(scope);\n    </script>\n</body>\n\n</html>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 470,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5b19745868e42562",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "cycle_info",
+        "topic": "borda/to/node-red/cycle_info",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 179,
+        "y": 198,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "8e673c0b4098efea",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "activation_time",
+        "topic": "borda/to/node-red/activation_time",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 159,
+        "y": 239,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "ba91a788e7d80adc",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "interval_time",
+        "topic": "borda/to/node-red/interval_time",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 169,
+        "y": 280,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "e3e8a54e701c9e80",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "valve_status",
+        "topic": "borda/to/node-red/valve_status",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 169,
+        "y": 318,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "16bd2f4853996dae",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "next_activation",
+        "topic": "borda/to/node-red/next_activation",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 159,
+        "y": 359,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "fb36ab4cabc7017d",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "water_volume",
+        "topic": "borda/to/node-red/water_volume",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 169,
+        "y": 400,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "4667642bfe34f8aa",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "status_message",
+        "topic": "borda/to/node-red/status_message",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 159,
+        "y": 439,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "d4ae48743fb34963",
+        "type": "mqtt in",
+        "z": "b7eb8a0ff1140f28",
+        "name": "activation_in_progress",
+        "topic": "borda/to/node-red/activation_in_progress",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "5d1db302596061a3",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 139,
+        "y": 479,
+        "wires": [
+            [
+                "72a249432038b287",
+                "4e3287df43846e31"
+            ]
+        ]
+    },
+    {
+        "id": "4e3287df43846e31",
+        "type": "debug",
+        "z": "b7eb8a0ff1140f28",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 420,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "923844b8b7f3d460",
+        "type": "ui_group",
+        "name": "Informações da Irrigação",
+        "tab": "aa70a5517864d8ed",
+        "order": 1,
+        "disp": true,
+        "width": "24",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "5d1db302596061a3",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "10.0.0.117",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "aa70a5517864d8ed",
+        "type": "ui_tab",
+        "name": "Monitoramento",
+        "icon": "dashboard",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    }
+]
